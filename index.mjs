@@ -10,7 +10,7 @@ const rl = readline.createInterface({ input, output });
 const promptTemplate = fs.readFileSync("prompt.txt", "utf8");
 const mergeTemplate = fs.readFileSync("merge.txt", "utf8");
 
-// use serpapi to answer the question
+// 使用 serpapi 回答问题
 const googleSearch = async (question) =>
   await fetch(
     `https://serpapi.com/search?api_key=${process.env.SERPAPI_API_KEY}&q=${question}`
@@ -18,27 +18,27 @@ const googleSearch = async (question) =>
     .then((res) => res.json())
     .then(
       (res) =>
-        // try to pull the answer from various components of the response
+        // 尝试从响应的各个部分中提取答案
         res.answer_box?.answer ||
         res.answer_box?.snippet ||
         res.organic_results?.[0]?.snippet
     );
 
-// tools that can be used to answer questions
+// 可用于回答问题的工具
 const tools = {
   search: {
     description:
-      "a search engine. useful for when you need to answer questions about current events. input should be a search query.",
+      "一个搜索引擎。当你需要回答关于当前事件的问题时非常有用。输入应该是一个搜索查询。",
     execute: googleSearch,
   },
   calculator: {
     description:
-      "Useful for getting the result of a math expression. The input to this tool should be a valid mathematical expression that could be executed by a simple calculator.",
+      "用于获取数学表达式的结果。此工具的输入应为可由简单计算器执行的有效数学表达式。",
     execute: (input) => Parser.evaluate(input).toString(),
   },
 };
 
-// use GPT-3.5 to complete a given prompts
+// 使用 GPT-3.5 完成给定的提示
 const completePrompt = async (prompt) =>
   await fetch("https://api.openai.com/v1/completions", {
     method: "POST",
@@ -64,7 +64,7 @@ const completePrompt = async (prompt) =>
     });
 
 const answerQuestion = async (question) => {
-  // construct the prompt, with our question and the tools that the chain can use
+  // 用我们的问题和链可以使用的工具构建提示
   let prompt = promptTemplate.replace("${question}", question).replace(
     "${tools}",
     Object.keys(tools)
@@ -72,16 +72,16 @@ const answerQuestion = async (question) => {
       .join("\n")
   );
 
-  // allow the LLM to iterate until it finds a final answer
+  // 允许 LLM 迭代直到找到最终答案
   while (true) {
     const response = await completePrompt(prompt);
 
-    // add this to the prompt
+    // 将此添加到提示中
     prompt += response;
 
     const action = response.match(/Action: (.*)/)?.[1];
     if (action) {
-      // execute the action specified by the LLMs
+      // 执行 LLM 指定的 action
       const actionInput = response.match(/Action Input: "?(.*)"?/)?.[1];
       const result = await tools[action.trim()].execute(actionInput);
       prompt += `Observation: ${result}\n`;
@@ -91,7 +91,7 @@ const answerQuestion = async (question) => {
   }
 };
 
-// merge the chat history with a new question
+// 将聊天记录与新问题合并
 const mergeHistory = async (question, history) => {
   const prompt = mergeTemplate
     .replace("${question}", question)
@@ -99,10 +99,10 @@ const mergeHistory = async (question, history) => {
   return await completePrompt(prompt);
 };
 
-// main loop - answer the user's questions
+// 主循环——回答用户的问题
 let history = "";
 while (true) {
-  let question = await rl.question("How can I help? ");
+  let question = await rl.question("我能为您做些什么? ");
   if (history.length > 0) {
     question = await mergeHistory(question, history);
   }

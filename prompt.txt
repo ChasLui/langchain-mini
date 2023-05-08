@@ -1,17 +1,17 @@
-Answer the following questions as best you can. You have access to the following tools:
+请尽力回答以下问题。您可以使用以下工具：
 
 ${tools}
 
-Use the following format:
+请使用以下格式：
 
-Question: the input question you must answer
-Thought: you should always think about what to do
-Action: the action to take, should be one of [search]
-Action Input: the input to the action
-Observation: the result of the action
-... (this Thought/Action/Action Input/Observation can repeat N times)
-Thought: I now know the final answer
-Final Answer: the final answer to the original input question
+Question: 你必须回答的输入问题
+Thought: 你应该时刻想着该做什么
+Action: 应该采取的行动之一是 [search]
+Action Input: action 的输入
+Observation: action 的输出结果
+... (这个 Thought/Action/Action Input/Observation 可以重复 N 次)
+Thought: 我现在知道最终答案了。
+Final Answer: 原始输入问题的最终答案
 
 Begin!
 
